@@ -38,6 +38,21 @@ class AppViz:
         self._token_type = response.json()['token_type']
         self._token = response.json()['access_token']
 
+    def create_application(self, name=None, **kwargs):
+        if not name:
+            raise ValueError("Name is required")
+
+        body = {
+            'name': name,
+            **kwargs
+        }
+
+        result = self._make_api_call('POST',
+                                       '/BusinessFlow/rest/v1/applications/new',
+                                       body=body)
+
+        return result
+
     def create_network_object(self, name=None, obj_type=None, content=None, **kwargs):
         valid_object_types = ['Range', 'Host', 'Group', 'Abstract']
 
@@ -59,7 +74,7 @@ class AppViz:
                                      '/BusinessFlow/rest/v1/network_objects/new',
                                      body=body)
 
-        print(result)
+        return result
 
     def get_applications(self):
         response = self._make_api_call('GET',
@@ -92,6 +107,6 @@ class AppViz:
         elif method.lower() == 'post':
             response = requests.post(self.url + url_path, headers=headers, json=body, params=params)
         else:
-            raise AssertionError("Invalid method, must be: 'GET' or 'POST'")
+            raise ValueError("Invalid method, must be: 'GET' or 'POST'")
 
         return response.json()
