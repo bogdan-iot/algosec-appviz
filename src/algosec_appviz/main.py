@@ -1,14 +1,16 @@
 import requests
 from algosec_appviz import environment
+from mydict import MyDict
+
 
 class AlgoSecAppViz:
     def __init__(self, tenant_id, client_id, client_secret):
         self.url = "https://eu.app.algosec.com/api/algosaas/auth/v1/access-keys/login"
 
         data = {
-            "tenantId": tenant_id,
-            "clientId": client_id,
-            "clientSecret": client_secret
+            "tenantId": environment.get_tenant_id(),
+            "clientId": environment.get_client_id(),
+            "clientSecret": environment.get_client_secret()
         }
 
         headers = {
