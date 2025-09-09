@@ -3,7 +3,7 @@ from algosec_appviz import environment
 from mydict import MyDict
 
 
-class AlgoSecAppViz:
+class AppViz:
     def __init__(self, tenant_id, client_id, client_secret):
         self.url = "https://eu.app.algosec.com/api/algosaas/auth/v1/access-keys/login"
 
@@ -25,24 +25,16 @@ class AlgoSecAppViz:
         self._token = response.json()['access_token']
 
     def get_applications(self):
-        url = 'https://eu.app.algosec.com/BusinessFlow/rest/v1/applications'
-        headers = {
-            'Accept': 'application/json',
-            'Authorization': f'{self._token_type} {self._token}'
-        }
+        response = self._make_api_call('GET',
+                                       'https://eu.app.algosec.com/BusinessFlow/rest/v1/applications')
 
-        response = requests.get(url, headers=headers)
-        return [MyDict(x) for x in response.json()]
+        return [MyDict(x) for x in response]
 
     def get_network_objects(self):
-        url = 'https://eu.app.algosec.com/ObjectFlow/rest/v1/network_objects/name/'
-        headers = {
-            'Accept': 'application/json',
-            'Authorization': f'{self._token_type} {self._token}'
-        }
+        response = self._make_api_call('GET',
+                                       'https://eu.app.algosec.com/ObjectFlow/rest/v1/network_objects/name/')
 
-        response = requests.get(url, headers=headers)
-        return [MyDict(x) for x in response.json()]
+        return [MyDict(x) for x in response]
 
     def _make_api_call(self, method, url):
         headers = {
@@ -56,3 +48,5 @@ class AlgoSecAppViz:
             response = requests.get(url, headers=headers)
         else:
             raise AssertionError("Invalid method, must be: 'GET' or 'POST'")
+
+        return response.json()
