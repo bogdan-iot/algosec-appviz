@@ -43,3 +43,16 @@ class AlgoSecAppViz:
 
         response = requests.get(url, headers=headers)
         return [MyDict(x) for x in response.json()]
+
+    def _make_api_call(self, method, url):
+        headers = {
+            'Accept': 'application/json',
+            'Authorization': f'{self._token_type} {self._token}'
+        }
+
+        if method.lower() == 'get':
+            response = requests.get(url, headers=headers)
+        elif method.lower() == 'post':
+            response = requests.get(url, headers=headers)
+        else:
+            raise AssertionError("Invalid method, must be: 'GET' or 'POST'")
