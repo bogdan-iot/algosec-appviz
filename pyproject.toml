@@ -3,7 +3,7 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
-name = "algosec-appviz"
+name = "algosec_appviz"
 repository = "https://github.com/bogdan-iot/algosec-appviz"
 documentation = "https://github.com/bogdan-iot/algosec-appviz/blob/master/README.md"
 version = "0.0.2"
