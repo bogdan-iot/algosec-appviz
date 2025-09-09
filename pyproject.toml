@@ -1,0 +1,29 @@
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "algosec_appviz"
+repository = "https://github.com/bogdan-iot/algosec-appviz"
+documentation = "https://github.com/bogdan-iot/algosec-appviz/blob/master/README.md"
+version = "0.0.1"
+license = "LICENSE"
+readme = "README.md"
+description = "AlgoSec AppViz Library"
+authors = [ "Bogdan Radu" ]
+
+packages = [
+    { include = "algosec_appviz", from = "src" }
+]
+classifiers = [
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+[tool.poetry.dependencies]
+python = ">=3.8.0"
+mydict = "2.1.0"
+python-dotenv = ">1.0.0"

@@ -1,0 +1,4 @@
+python-dotenv~=1.0.1
+mydict~=2.1.0
+pytest~=8.3.3
+requests~=2.32.4
