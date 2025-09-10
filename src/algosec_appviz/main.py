@@ -32,7 +32,7 @@ class AppViz:
             "Accept": "application/json"
         }
 
-        response = requests.post(login_url, json=data, headers=headers)
+        response = requests.post(login_url, json=data, headers=headers, proxies=self.proxies)
         if response.status_code != 200:
             raise ConnectionError(f"Authentication to AppViz failed: {response.text}")
 
