@@ -14,12 +14,13 @@ regions = {
 
 
 class AppViz:
-    def __init__(self, region='eu', tenant_id=None, client_id=None, client_secret=None):
+    def __init__(self, region='eu', tenant_id=None, client_id=None, client_secret=None, proxies=None):
         if region not in regions.keys():
             raise ValueError(f"Invalid region, must be one of: {', '.join(regions.keys())}")
 
-        login_url = f"https://{regions[region]}/api/algosaas/auth/v1/access-keys/login"
+        self.proxies = proxies
 
+        login_url = f"https://{regions[region]}/api/algosaas/auth/v1/access-keys/login"
         data = {
             "tenantId": tenant_id or environment.get_tenant_id(),
             "clientId": client_id or environment.get_client_id(),
@@ -34,6 +35,7 @@ class AppViz:
         response = requests.post(login_url, json=data, headers=headers)
         if response.status_code != 200:
             raise ConnectionError(f"Authentication to AppViz failed: {response.text}")
+
         self.url = 'https://' + regions[region]
         self._token_type = response.json()['token_type']
         self._token = response.json()['access_token']
@@ -48,8 +50,8 @@ class AppViz:
         }
 
         result = self._make_api_call('POST',
-                                       '/BusinessFlow/rest/v1/applications/new',
-                                       body=body)
+                                     '/BusinessFlow/rest/v1/applications/new',
+                                     body=body)
 
         return result
 
@@ -102,11 +104,14 @@ class AppViz:
             'Authorization': f'{self._token_type} {self._token}'
         }
 
+        url = self.url + url_path
+
         if method.lower() == 'get':
-            response = requests.get(self.url + url_path, headers=headers, json=body, params=params)
+            response = requests.get(url, headers=headers, json=body, params=params, proxies=self.proxies)
         elif method.lower() == 'post':
-            response = requests.post(self.url + url_path, headers=headers, json=body, params=params)
+            response = requests.post(url, headers=headers, json=body, params=params, proxies=self.proxies)
         else:
             raise ValueError("Invalid method, must be: 'GET' or 'POST'")
 
+        response.raise_for_status()
         return response.json()
