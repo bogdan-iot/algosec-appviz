@@ -78,13 +78,55 @@ class AppViz:
 
         return result
 
+    def delete_network_object(self, obj_id=None):
+        """
+        Deletes a network object in AppViz
+        :param obj_id: The object ID
+        :return: True if successful, false if not
+        """
+        if not obj_id:
+            raise ValueError("Object ID is mandatory")
+
+        result = self._make_api_call('DELETE',
+                                     f'/BusinessFlow/rest/v1/network_objects/{obj_id}')
+
+        if result['httpStatusCode'] != 200:
+            print(f"Error deleting object: {result['message']}")
+            return ""
+
+        return result
+
     def get_applications(self):
         response = self._make_api_call('GET',
                                        '/BusinessFlow/rest/v1/applications')
 
         return [MyDict(x) for x in response]
 
+    def get_all_network_objects(self):
+        """
+        Gets all the network objects from AppViz. This could take some time, depending on the number of objects.
+        :return: The list of objects
+        """
+        appviz_objects = []
+        page = 1
+
+        while True:
+            print(f"Getting AppViz Network Objects, page {page}...")
+            objects = self.list_network_objects(page_number=page)
+            page = page + 1
+            appviz_objects.extend(objects)
+            if len(objects) < 1000:
+                break
+
+        return appviz_objects
+
     def list_network_objects(self, page_number=1, page_size=1000):
+        """
+        Get a list of objects based on the page_size (the number of objects to be retrieved) and the page number
+        :param page_number: Page number, defaults to 1
+        :param page_size: Page size, defaults to 1000
+        :return: The list of objects
+        """
         response = self._make_api_call('GET',
                                        '/BusinessFlow/rest/v1/network_objects/',
                                        params={'page_number': page_number, 'page_size': page_size})
@@ -99,6 +141,7 @@ class AppViz:
         return [MyDict(x) for x in response]
 
     def _make_api_call(self, method, url_path, body=None, params=None):
+        valid_methods = ['get', 'post', 'delete']
         headers = {
             'Accept': 'application/json',
             'Authorization': f'{self._token_type} {self._token}'
@@ -110,8 +153,9 @@ class AppViz:
             response = requests.get(url, headers=headers, json=body, params=params, proxies=self.proxies)
         elif method.lower() == 'post':
             response = requests.post(url, headers=headers, json=body, params=params, proxies=self.proxies)
+        elif method.lower() == 'delete':
+            response = requests.delete(url, headers=headers, json=body, params=params, proxies=self.proxies)
         else:
-            raise ValueError("Invalid method, must be: 'GET' or 'POST'")
+            raise ValueError(f"Invalid method, must be: {', '.join(valid_methods)}")
 
-        response.raise_for_status()
         return response.json()
