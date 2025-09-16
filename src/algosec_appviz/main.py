@@ -82,7 +82,7 @@ class AppViz:
         """
         Deletes a network object in AppViz
         :param obj_id: The object ID
-        :return: True if successful, false if not
+        :return: Change details if successful, empty string otherwise
         """
         if not obj_id:
             raise ValueError("Object ID is mandatory")
@@ -95,6 +95,29 @@ class AppViz:
             return ""
 
         return result
+
+    def update_network_object(self, obj_id=None, **kwargs):
+        """
+        Updates a network object in AppViz
+        :return: The new object details, if successful, empty string otherwise
+        """
+        if not obj_id:
+            raise ValueError("Object ID is mandatory")
+
+        result = self._make_api_call('POST',
+                                     f'/BusinessFlow/rest/v1/network_objects/{obj_id}',
+                                     body={**kwargs})
+
+        if isinstance(result, dict) and 'networkObject' in result.keys():
+            return result['networkObject']
+
+        try:
+            print(result[1])
+        except KeyError:
+            if 'success' in result.keys() and not result['success']:
+                print(result['message'])
+
+        return ""
 
     def get_applications(self):
         response = self._make_api_call('GET',
