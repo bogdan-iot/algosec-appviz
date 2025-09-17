@@ -1,5 +1,6 @@
 import requests
 from algosec_appviz import environment
+from datetime import datetime, timedelta
 from mydict import MyDict
 
 regions = {
@@ -19,12 +20,19 @@ class AppViz:
             raise ValueError(f"Invalid region, must be one of: {', '.join(regions.keys())}")
 
         self.proxies = proxies
+        self.region = region
+        self.tenant_id = tenant_id or environment.get_tenant_id()
+        self._client_id = client_id or environment.get_client_id()
+        self._client_secret = client_secret or environment.get_client_secret()
 
-        login_url = f"https://{regions[region]}/api/algosaas/auth/v1/access-keys/login"
+        self._init_token()
+
+    def _init_token(self):
+        login_url = f"https://{regions[self.region]}/api/algosaas/auth/v1/access-keys/login"
         data = {
-            "tenantId": tenant_id or environment.get_tenant_id(),
-            "clientId": client_id or environment.get_client_id(),
-            "clientSecret": client_secret or environment.get_client_secret()
+            "tenantId": self.tenant_id,
+            "clientId": self._client_id,
+            "clientSecret": self._client_secret
         }
 
         headers = {
@@ -36,9 +44,10 @@ class AppViz:
         if response.status_code != 200:
             raise ConnectionError(f"Authentication to AppViz failed: {response.text}")
 
-        self.url = 'https://' + regions[region]
+        self.url = 'https://' + regions[self.region]
         self._token_type = response.json()['token_type']
         self._token = response.json()['access_token']
+        self._token_expires = datetime.now() + timedelta(seconds=response.json()['expires_in'])
 
     def create_application(self, name=None, **kwargs):
         if not name:
@@ -164,6 +173,10 @@ class AppViz:
         return [MyDict(x) for x in response]
 
     def _make_api_call(self, method, url_path, body=None, params=None):
+        # Check if the token is still valid, otherwise request a new one
+        if datetime.now() >= self._token_expires - timedelta(seconds=5):
+            self._init_token()
+
         valid_methods = ['get', 'post', 'delete']
         headers = {
             'Accept': 'application/json',
