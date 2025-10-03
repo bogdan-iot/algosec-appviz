@@ -105,6 +105,12 @@ class AppViz:
 
         return result
 
+    def get_object_by_id(self, obj_id):
+        response = self._make_api_call('GET',
+                                       f'/BusinessFlow/rest/v1/network_objects/{obj_id}')
+
+        return MyDict(response)
+
     def update_network_object(self, obj_id=None, **kwargs):
         """
         Updates a network object in AppViz
