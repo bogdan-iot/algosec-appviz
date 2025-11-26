@@ -94,7 +94,7 @@ class AppViz:
             body = {'removeLabels': tag_list}
 
         result = self._make_api_call('POST',
-                                     '/BusinessFlow/rest/v1/applications/new',
+                                     f'/BusinessFlow/rest/v1/applications/{app_id}/labels',
                                      body=body)
 
         return result
