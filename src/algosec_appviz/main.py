@@ -50,6 +50,12 @@ class AppViz:
         self._token_expires = datetime.now() + timedelta(seconds=response.json()['expires_in'])
 
     def create_application(self, name=None, **kwargs):
+        """
+        Create an application in AppViz
+        :param name: Application Name
+        :param kwargs: Extra information
+        :return:
+        """
         if not name:
             raise ValueError("Name is required")
 
@@ -64,7 +70,45 @@ class AppViz:
 
         return result
 
+    def update_application_tags(self, operation, app_id, tag_list):
+        """
+        Update the tags of an application
+        :param operation: add/remove
+        :param app_id: Application revision ID
+        :param tag_list: List of tags to be added/removed
+        :return:
+        """
+        valid_operations = ['add', 'remove']
+        if operation.lower() not in valid_operations:
+            raise ValueError(f"Invalid operation, must be one of: {', '.join(valid_operations)}")
+
+        if not app_id:
+            raise ValueError("Application revision ID is mandatory")
+
+        if not tag_list:
+            print("Nothing to udpate")
+
+        if operation.lower() == 'add':
+            body = {'addLabels': tag_list}
+        else:
+            body = {'removeLabels': tag_list}
+
+        result = self._make_api_call('POST',
+                                     '/BusinessFlow/rest/v1/applications/new',
+                                     body=body)
+
+        return result
+
     def create_network_object(self, name=None, obj_type=None, content=None, **kwargs):
+        """
+        :param name: Name of the new object 
+        :param obj_type: Type of the new object (valid options: Host/Range/Group/Abstract
+        :param content: Contents of the new object
+        Example for group creation: [{'name': <existing object 1>}, {'name': <existing object 2>}]
+        Example for host creation: 
+        :param kwargs: 
+        :return: 
+        """""
         valid_object_types = ['Range', 'Host', 'Group', 'Abstract']
 
         if not name:
