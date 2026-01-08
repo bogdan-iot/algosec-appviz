@@ -86,7 +86,7 @@ class AppViz:
             raise ValueError("Application revision ID is mandatory")
 
         if not tag_list:
-            print("Nothing to udpate")
+            print("Nothing to update")
 
         if operation.lower() == 'add':
             body = {'addLabels': tag_list}
@@ -143,7 +143,7 @@ class AppViz:
         result = self._make_api_call('DELETE',
                                      f'/BusinessFlow/rest/v1/network_objects/{obj_id}')
 
-        if result['httpStatusCode'] != 200:
+        if not result['success']:
             print(f"Error deleting object: {result['message']}")
             return ""
 
