@@ -185,7 +185,8 @@ class AppViz:
                                         "type": "All",
                                         "entityType": entity_type,
                                         "query": json.dumps(query_json)
-                                    })
+                                    },
+                                    proxies=self.proxies)
 
             content = json.loads(response.text)
             log_entries.extend([x for x in content['content']])
