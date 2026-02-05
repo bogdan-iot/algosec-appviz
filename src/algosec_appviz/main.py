@@ -1,3 +1,4 @@
+import json
 import requests
 from algosec_appviz import environment
 from datetime import datetime, timedelta
@@ -148,6 +149,53 @@ class AppViz:
             return ""
 
         return result
+
+    def get_log_entries(self, categories=None, text_filter=None, entity_type='All', start_epoch=None, end_epoch=None):
+        if not categories:
+            raise ValueError("Categories is a mandatory parameter")
+        if not text_filter:
+            raise ValueError("text_filter is a mandatory parameter")
+        log_entries = []
+        page = 1
+
+        headers = {
+            'Accept': 'application/json',
+            'Authorization': f'{self._token_type} {self._token}'
+        }
+
+        query_json = {
+            "categories": categories,
+            "sort": {"column": "Date", "direction": "DESC"},
+            "freeTextFilters": text_filter
+        }
+
+        if start_epoch:
+            query_json["startDate"] = start_epoch
+
+        if end_epoch:
+            query_json["endDate"] = end_epoch
+
+        while True:
+            print(f"Getting AppViz log entries, page {page}...")
+            response = requests.get(url=self.url + '/BusinessFlow/rest/v2/activity_logs/search',
+                                    headers=headers,
+                                    params={
+                                        "identifier": 0,
+                                        "page_number": page,
+                                        "type": "All",
+                                        "entityType": entity_type,
+                                        "query": json.dumps(query_json)
+                                    })
+
+            content = json.loads(response.text)
+            log_entries.extend([x for x in content['content']])
+
+            page = page + 1
+
+            if page > content['totalPages']:
+                break
+
+        return log_entries
 
     def get_object_by_id(self, obj_id):
         response = self._make_api_call('GET',
