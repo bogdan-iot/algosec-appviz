@@ -263,6 +263,24 @@ class AppViz:
 
         return appviz_objects
 
+    def get_all_network_services(self):
+        """
+        Gets all the network services from AppViz. This could take some time, depending on the number of services.
+        :return: The list of objects
+        """
+        appviz_services = []
+        page = 1
+
+        while True:
+            print(f"Getting AppViz Network Services, page {page}...")
+            services = self.list_network_services(page_number=page)
+            page = page + 1
+            appviz_services.extend(services)
+            if len(services) < 1000:
+                break
+
+        return appviz_services
+
     def list_network_objects(self, page_number=1, page_size=1000):
         """
         Get a list of objects based on the page_size (the number of objects to be retrieved) and page number
@@ -286,6 +304,24 @@ class AppViz:
         response = self._make_api_call('GET',
                                        '/BusinessFlow/rest/v1/applications',
                                        params={'page_number': page_number, 'page_size': page_size})
+
+        return [MyDict(x) for x in response]
+
+    def list_network_services(self, page_number=1, page_size=500):
+        """
+        TODO: This doesn't work currently because it's using Async APIs
+        Get a list of network services based on the page_size (the number of services to be retrieved) and page number
+        :param page_number: Page number, defaults to 1
+        :param page_size: Page size, defaults to 500
+        :return: The list of services
+        """
+        response = self._make_api_call('GET',
+                                       '/BusinessFlow/rest/v1/network_services/',
+                                       params={'page_number': page_number, 'page_size': page_size})
+
+        if 'requestId' in response.keys():
+            task_status = self._make_api_call('GET', f'/Task/{response["requestId"]}')
+            print(task_status)
 
         return [MyDict(x) for x in response]
 
