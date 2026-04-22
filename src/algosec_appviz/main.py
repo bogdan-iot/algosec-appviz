@@ -228,10 +228,22 @@ class AppViz:
         return ""
 
     def get_applications(self):
-        response = self._make_api_call('GET',
-                                       '/BusinessFlow/rest/v1/applications')
+        """
+        Gets all the applications present in AppViz
+        :return: The list of applications
+        """
+        appviz_apps = []
+        page = 1
 
-        return [MyDict(x) for x in response]
+        while True:
+            print(f"Getting Appviz Applications, page {page}...")
+            apps = self.list_applications(page_number=page)
+            page = page + 1
+            appviz_apps.extend(apps)
+            if len(apps) < 500:
+                break
+
+        return appviz_apps
 
     def get_all_network_objects(self):
         """
@@ -253,13 +265,26 @@ class AppViz:
 
     def list_network_objects(self, page_number=1, page_size=1000):
         """
-        Get a list of objects based on the page_size (the number of objects to be retrieved) and the page number
+        Get a list of objects based on the page_size (the number of objects to be retrieved) and page number
         :param page_number: Page number, defaults to 1
         :param page_size: Page size, defaults to 1000
         :return: The list of objects
         """
         response = self._make_api_call('GET',
                                        '/BusinessFlow/rest/v1/network_objects/',
+                                       params={'page_number': page_number, 'page_size': page_size})
+
+        return [MyDict(x) for x in response]
+
+    def list_applications(self, page_number=1, page_size=500):
+        """
+        Get a list of applications based on the page_size (the number of applications to be retrieved) and page number
+        :param page_number: Page number, defaults to 1
+        :param page_size: Page size, defaults to 500
+        :return: The list of applications
+        """
+        response = self._make_api_call('GET',
+                                       '/BusinessFlow/rest/v1/applications',
                                        params={'page_number': page_number, 'page_size': page_size})
 
         return [MyDict(x) for x in response]
