@@ -150,6 +150,42 @@ class AppViz:
 
         return result
 
+    def find_network_object(self, address=None):
+        """
+        Finds a network object by IP address or network
+        :param address: The IP address or network (including prefix length)
+        :return: The object if found, None otherwise
+        """
+        if not address:
+            raise ValueError("IP Address or network is mandatory")
+
+        result = self._make_api_call('GET',
+                                     f'/BusinessFlow/rest/v1/network_objects/find',
+                                     params={'address': address, 'type': 'EXACT'})
+
+        if len(result) > 1:
+            print("Multiple objects found")
+            return None
+        elif len(result) < 1:
+            return None
+
+        return result[0]
+
+    def list_applications_by_address(self, address=None):
+        """
+        Lists all applications that are using a specific IP address or network
+        :param address: The IP address or network (including prefix length)
+        :return: The object if found, None otherwise
+        """
+        if not address:
+            raise ValueError("IP Address or network is mandatory")
+
+        result = self._make_api_call('GET',
+                                     f'/BusinessFlow/rest/v1/network_objects/find/applications',
+                                     params={'address': address, 'type': 'EXACT'})
+
+        return result
+
     def get_log_entries(self, categories=None, text_filter=None, entity_type='All', start_epoch=None, end_epoch=None):
         if not categories:
             raise ValueError("Categories is a mandatory parameter")

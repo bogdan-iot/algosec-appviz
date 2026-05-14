@@ -11,14 +11,18 @@ load_dotenv(dotenv_home_path)
 load_dotenv(dotenv_current_path)
 
 # Logging config
+if sys.platform.startswith('win'):
+    logging_file = 'algosec_appviz.log'
+else:
+    logging_file = '/tmp/algosec_appviz.log'
 if sys.version_info.major >= 3 and sys.version_info.minor >= 9:
-    logging.basicConfig(filename='/tmp/algosec_appviz.log',
+    logging.basicConfig(filename=logging_file,
                         encoding='utf-8',
                         level=logging.INFO,
                         format='%(levelname)s:%(asctime)s %(message)s',
                         datefmt='%d/%m/%Y %H:%M:%S')
 else:
-    logging.basicConfig(filename='/tmp/algosec_appviz.log',
+    logging.basicConfig(filename=logging_file,
                         level=logging.INFO,
                         format='%(levelname)s:%(asctime)s %(message)s',
                         datefmt='%d/%m/%Y %H:%M:%S')
