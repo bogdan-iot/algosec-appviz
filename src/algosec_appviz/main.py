@@ -163,13 +163,16 @@ class AppViz:
                                      f'/BusinessFlow/rest/v1/network_objects/find',
                                      params={'address': address, 'type': 'EXACT'})
 
-        if len(result) > 1:
+        # The API call also returns groups that the object is part of, we want to exclude those
+        obj = [x for x in result if x['objectType'].lower() != 'group']
+
+        if len(obj) > 1:
             print("Multiple objects found")
             return None
-        elif len(result) < 1:
+        elif len(obj) < 1:
             return None
 
-        return result[0]
+        return obj[0]
 
     def list_applications_by_address(self, address=None):
         """
