@@ -150,6 +150,18 @@ class AppViz:
 
         return result
 
+    def find_network_object_by_name(self, name=None):
+        if not name:
+            raise ValueError("Object name is mandatory")
+
+        result = self._make_api_call('GET',
+                                     f'/BusinessFlow/rest/v2/endpoints/recent?search_string={name}')
+
+        if not result:
+            return None
+
+        return result[0] if result[0]['name'] == name else None
+
     def find_network_object(self, address=None):
         """
         Finds a network object by IP address or network
