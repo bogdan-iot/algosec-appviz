@@ -268,15 +268,15 @@ class AppViz:
                                      body={**kwargs})
 
         if isinstance(result, dict) and 'networkObject' in result.keys():
-            return result['networkObject']
+            return {'success': result['networkObject']}
 
         try:
-            print(result[1])
+            return {'error': result[1]}
         except KeyError:
             if 'success' in result.keys() and not result['success']:
-                print(result['message'])
+                return {'error': result['message']}
 
-        return ""
+        return {}
 
     def get_applications(self):
         """
