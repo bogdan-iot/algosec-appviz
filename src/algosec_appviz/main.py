@@ -358,21 +358,44 @@ class AppViz:
 
         return [MyDict(x) for x in response]
 
-    def list_network_services(self, page_number=1, page_size=500):
+    def get_task_status(self, request_id=None):
         """
-        TODO: This doesn't work currently because it's using Async APIs
+        This method returns the status of a task when using async APIs
+        :param request_id: The request ID
+        :return: The status of the task
+        """
+        if not request_id:
+            raise ValueError("Request ID is mandatory")
+
+        response = self._make_api_call('GET',
+                                       f'/BusinessFlow/rest/v1/task/{request_id}')
+
+        if isinstance(response, list):
+            return [MyDict(x) for x in response]
+
+        return MyDict(response)
+
+    def list_network_services(self, page_number=1, page_size=500, use_async=False):
+        """
         Get a list of network services based on the page_size (the number of services to be retrieved) and page number
         :param page_number: Page number, defaults to 1
         :param page_size: Page size, defaults to 500
         :return: The list of services
         """
-        response = self._make_api_call('GET',
-                                       '/BusinessFlow/rest/v1/network_services/',
-                                       params={'page_number': page_number, 'page_size': page_size})
+        url_path = '/BusinessFlow/rest/v1/network_services/'
+        params = {
+            "page_number": page_number,
+            "page_size": page_size
+        }
+        if use_async:
+            params['redirectAllowed'] = False
+        else:
+            params['redirectAllowed'] = True
 
-        if 'requestId' in response.keys():
-            task_status = self._make_api_call('GET', f'/Task/{response["requestId"]}')
-            print(task_status)
+        response = self._make_api_call('GET', url_path=url_path, params=params)
+
+        if isinstance(response, dict) and 'requestId' in response.keys():
+            return self.get_task_status(request_id=response['requestId'])
 
         return [MyDict(x) for x in response]
 
