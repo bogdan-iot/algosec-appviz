@@ -249,6 +249,18 @@ class AppViz:
 
         return log_entries
 
+    def get_object_by_name(self, obj_name):
+        response = self._make_api_call('GET',
+                                       f'/BusinessFlow/rest/v1/network_objects/name/{obj_name}')
+        if isinstance(response, dict) and response['httpStatusCode'] == 404:
+            return None
+
+        if isinstance(response, list) and len(response) != 1:
+            print("Multiple objects matched")
+            return None
+
+        return MyDict(response[0])
+
     def get_object_by_id(self, obj_id):
         response = self._make_api_call('GET',
                                        f'/BusinessFlow/rest/v1/network_objects/{obj_id}')
