@@ -71,6 +71,20 @@ class AppViz:
 
         return result
 
+    def get_application_id_by_name(self, name):
+        """
+        Gets the latest revision of an application by name
+        :param name: The name of the application
+        """
+        url_path = f'/BusinessFlow/rest/v1/applications/name/{name}'
+
+        if not name:
+            raise ValueError("Name is required")
+
+        result = self._make_api_call('GET', url_path)
+
+        return result
+
     def update_application_tags(self, operation, app_id, tag_list):
         """
         Update the tags of an application
@@ -417,6 +431,36 @@ class AppViz:
                                        params={'address': content, 'type': 'EXACT'})
 
         return [MyDict(x) for x in response]
+
+    def subscribe_to_flow(self, app_id=None, shared_app_name=None, shared_flow_name=None,
+                          placeholder_network_object=None, comment=''):
+        """
+        This method subscribes to a share flow.
+        :param: app_id: The application ID of the application where the subscribed flow must be added
+        :param: shared_app_name: The name of the shared app
+        :param: shared_flow_name: The name of the shared flow
+        :param placeholder_network_object: The network object that represents the placeholder. This needs to be an
+        array of network object IDs
+        """
+        url_path = f'/BusinessFlow/rest/v1/applications/{app_id}/flows/new'
+
+        #Here we need to check that all the variables are properly passed
+
+        body = [{
+            'type': 'SUBSCRIBED',
+            'shared_application_name': shared_app_name,
+            'subscribed_flows': [{
+                'shared_flow_name': shared_flow_name,
+                'placeholder_network_object': placeholder_network_object,
+                'comment': comment
+            }]
+        }]
+
+        result = self._make_api_call('POST',
+                                     url_path=url_path,
+                                     body=body)
+
+        print(result)
 
     def _make_api_call(self, method, url_path, body=None, params=None):
         # Check if the token is still valid, otherwise request a new one
