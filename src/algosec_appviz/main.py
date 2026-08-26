@@ -1,10 +1,11 @@
 import json
 import requests
-from algosec_appviz import environment
+
+from .auth import AppVizAuth
 from datetime import datetime, timedelta
 from mydict import MyDict
 
-regions = {
+REGIONS = {
     'eu': 'eu.app.algosec.com',
     'us': 'us.app.algosec.com',
     'anz': 'anz.app.algosec.com',
@@ -15,40 +16,30 @@ regions = {
 }
 
 
-class AppViz:
-    def __init__(self, region='eu', tenant_id=None, client_id=None, client_secret=None, proxies=None):
-        if region not in regions.keys():
-            raise ValueError(f"Invalid region, must be one of: {', '.join(regions.keys())}")
+class AppViz(AppVizAuth):
+    def _make_api_call(self, method, url_path, body=None, params=None):
+        # Check if the token is still valid, otherwise request a new one
+        if datetime.now() >= self._token_expires - timedelta(seconds=5):
+            self._init_token()
 
-        self.proxies = proxies
-        self.region = region
-        self.tenant_id = tenant_id or environment.get_tenant_id()
-        self._client_id = client_id or environment.get_client_id()
-        self._client_secret = client_secret or environment.get_client_secret()
-
-        self._init_token()
-
-    def _init_token(self):
-        login_url = f"https://{regions[self.region]}/api/algosaas/auth/v1/access-keys/login"
-        data = {
-            "tenantId": self.tenant_id,
-            "clientId": self._client_id,
-            "clientSecret": self._client_secret
-        }
-
+        valid_methods = ['get', 'post', 'delete']
         headers = {
-            "Content-Type": "application/json",
-            "Accept": "application/json"
+            'Accept': 'application/json',
+            'Authorization': f'{self._token_type} {self._token}'
         }
 
-        response = requests.post(login_url, json=data, headers=headers, proxies=self.proxies)
-        if response.status_code != 200:
-            raise ConnectionError(f"Authentication to AppViz failed: {response.text}")
+        url = self.url + url_path
 
-        self.url = 'https://' + regions[self.region]
-        self._token_type = response.json()['token_type']
-        self._token = response.json()['access_token']
-        self._token_expires = datetime.now() + timedelta(seconds=response.json()['expires_in'])
+        if method.lower() == 'get':
+            response = requests.get(url, headers=headers, json=body, params=params, proxies=self.proxies)
+        elif method.lower() == 'post':
+            response = requests.post(url, headers=headers, json=body, params=params, proxies=self.proxies)
+        elif method.lower() == 'delete':
+            response = requests.delete(url, headers=headers, json=body, params=params, proxies=self.proxies)
+        else:
+            raise ValueError(f"Invalid method, must be: {', '.join(valid_methods)}")
+
+        return response.json()
 
     def create_application(self, name=None, **kwargs):
         """
