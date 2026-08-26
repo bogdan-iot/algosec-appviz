@@ -394,9 +394,10 @@ class AppViz(AppVizAuth):
 
     def list_network_services(self, page_number=1, page_size=500, use_async=False):
         """
-        Get a list of network services based on the page_size (the number of services to be retrieved) and page number
+        Get a list of network services based on the page_size (the number of services to be retrieved) and number
         :param page_number: Page number, defaults to 1
         :param page_size: Page size, defaults to 500
+        :param use_async: Use async APIs, defaults to False
         :return: The list of services
         """
         url_path = '/BusinessFlow/rest/v1/network_services/'
@@ -427,22 +428,33 @@ class AppViz(AppVizAuth):
                           placeholder_network_object=None, comment=''):
         """
         This method subscribes to a share flow.
-        :param: app_id: The application ID of the application where the subscribed flow must be added
-        :param: shared_app_name: The name of the shared app
-        :param: shared_flow_name: The name of the shared flow
+        :param app_id: The application ID of the application where the subscribed flow must be added
+        :param shared_app_name: The name of the shared app
+        :param shared_flow_name: The name of the shared flow
         :param placeholder_network_object: The network object that represents the placeholder. This needs to be an
         array of network object IDs
+        :param comment: Optional comment for the subscribed flow
         """
         url_path = f'/BusinessFlow/rest/v1/applications/{app_id}/flows/new'
 
-        #Here we need to check that all the variables are properly passed
+        if app_id is None:
+            raise ValueError("app_id is required")
+
+        if shared_app_name is None:
+            raise ValueError("shared_app_name is required")
+
+        if shared_flow_name is None:
+            raise ValueError("shared_flow_name is required")
+
+        if placeholder_network_object is None:
+            raise ValueError("placeholder_network_object is required")
 
         body = [{
             'type': 'SUBSCRIBED',
             'shared_application_name': shared_app_name,
             'subscribed_flows': [{
                 'shared_flow_name': shared_flow_name,
-                'placeholder_network_object': placeholder_network_object,
+                'placeholder_network_object': [{'objectID': x} for x in placeholder_network_object],
                 'comment': comment
             }]
         }]
@@ -451,28 +463,7 @@ class AppViz(AppVizAuth):
                                      url_path=url_path,
                                      body=body)
 
-        print(result)
+        if 'asyncTaskStatus' in result.keys() and result['asyncTaskStatus'] == 'IN_PROGRESS':
+            return True
 
-    def _make_api_call(self, method, url_path, body=None, params=None):
-        # Check if the token is still valid, otherwise request a new one
-        if datetime.now() >= self._token_expires - timedelta(seconds=5):
-            self._init_token()
-
-        valid_methods = ['get', 'post', 'delete']
-        headers = {
-            'Accept': 'application/json',
-            'Authorization': f'{self._token_type} {self._token}'
-        }
-
-        url = self.url + url_path
-
-        if method.lower() == 'get':
-            response = requests.get(url, headers=headers, json=body, params=params, proxies=self.proxies)
-        elif method.lower() == 'post':
-            response = requests.post(url, headers=headers, json=body, params=params, proxies=self.proxies)
-        elif method.lower() == 'delete':
-            response = requests.delete(url, headers=headers, json=body, params=params, proxies=self.proxies)
-        else:
-            raise ValueError(f"Invalid method, must be: {', '.join(valid_methods)}")
-
-        return response.json()
+        return False
