@@ -144,6 +144,19 @@ class AppVizV3(AppVizAuth):
             params["countTotalElements"] = count_total_elements
         return self._get("/applications", params=params)
 
+    def get_all_applications(self):
+        all_apps = []
+        page = 0
+
+        while True:
+            result = self.list_applications(page=page, size=500)
+            all_apps.extend(result['elements'])
+
+            if not result.next:
+                break
+
+        return all_apps
+
     # ------------------------------------------------------------------ #
     # GET /applications/{appId}  -- getApplication
     # ------------------------------------------------------------------ #
