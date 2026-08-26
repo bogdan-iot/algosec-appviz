@@ -351,7 +351,7 @@ class AppViz(AppVizAuth):
 
     def list_network_objects(self, page_number=1, page_size=1000):
         """
-        Get a list of objects based on the page_size (the number of objects to be retrieved) and page number
+        Get a list of objects based on the page_size (the number of objects to be retrieved) and number
         :param page_number: Page number, defaults to 1
         :param page_size: Page size, defaults to 1000
         :return: The list of objects
@@ -364,7 +364,7 @@ class AppViz(AppVizAuth):
 
     def list_applications(self, page_number=1, page_size=500):
         """
-        Get a list of applications based on the page_size (the number of applications to be retrieved) and page number
+        Get a list of applications based on the page_size (the number of applications to be retrieved) and number
         :param page_number: Page number, defaults to 1
         :param page_size: Page size, defaults to 500
         :return: The list of applications
