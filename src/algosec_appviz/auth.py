@@ -79,7 +79,7 @@ class AppVizAuth:
         logger.info("Authenticating to AppViz (region=%s, tenant=%s)",
                     self.region, self.tenant_id)
         response = requests.post(login_url, json=data, headers=headers,
-                                  proxies=self.proxies)
+                                 proxies=self.proxies)
         if response.status_code != 200:
             logger.error("Authentication to AppViz failed (status=%s): %s",
                          response.status_code, response.text)

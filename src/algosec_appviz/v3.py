@@ -71,7 +71,7 @@ class AppVizV3(AppVizAuth):
     def __init__(self, region='eu', tenant_id=None, client_id=None,
                  client_secret=None, proxies=None, verify_ssl=True, timeout=30):
         super().__init__(region=region, tenant_id=tenant_id, client_id=client_id,
-                          client_secret=client_secret, proxies=proxies)
+                         client_secret=client_secret, proxies=proxies)
 
         self.timeout = timeout
         self.base_url = f"{self.url}/appviz/rest/v3"
@@ -179,6 +179,7 @@ class AppVizV3(AppVizAuth):
         """
         Start an asynchronous "resolve" action on an application
         (e.g. resolving blocked connectivity).
+        :param app_id: Application ID
         :param subject: Subject line for the generated change request.
         :return: dict -- RestTask (background task handle) on success (202).
         """
@@ -194,6 +195,7 @@ class AppVizV3(AppVizAuth):
     def recertify_application(self, app_id, recertification_comment):
         """
         Start an asynchronous re-certification action on an application.
+        :param app_id: Application ID
         :param recertification_comment: Required, non-empty comment.
         :return: dict -- RestTask on success (202).
         """
@@ -207,6 +209,7 @@ class AppVizV3(AppVizAuth):
     def decommission_application(self, app_id, subject=None):
         """
         Start an asynchronous decommission action on an application.
+        :param app_id: Application ID
         :param subject: Subject line for the generated decommission change request.
         :return: dict -- RestTask on success (202).
         """
@@ -220,9 +223,10 @@ class AppVizV3(AppVizAuth):
     # ------------------------------------------------------------------ #
 
     def activate_application(self, app_id, subject=None, selected_flow_ids=None,
-                              avoid_change_request=False):
+                             avoid_change_request=False):
         """
         Start an asynchronous activation action on an application.
+        :param app_id: Application ID
         :param subject: Subject for the change request. Required unless
             avoid_change_request=True.
         :param selected_flow_ids: Flow IDs to activate. Omit to activate all flows.
@@ -244,6 +248,7 @@ class AppVizV3(AppVizAuth):
         """
         Generic background action endpoint (per the spec, currently used
         for re-certification via a typed envelope).
+        :param app_id: Application ID
         :param action_type: Value for the "type" field of the request envelope.
         :param payload: Action-specific payload dict, e.g.
             {"recertificationComment": "..."} for a recertify action.
@@ -259,7 +264,8 @@ class AppVizV3(AppVizAuth):
     def search_applications(self, search_filter, page=0, size=10, sort=()):
         """
         Perform an advanced search on Applications (runs in the background).
-
+        :param page: Page number (default 0).
+        :param size: Page size (default 10).
         :param search_filter: RestApplicationSearchFilter dict, e.g.
             {
                 "fromExpirationDate": "2024-01-01T00:00:00Z",
@@ -291,7 +297,7 @@ class AppVizV3(AppVizAuth):
         :return: dict -- RestTask -- poll the Tasks API for the resulting file.
         """
         return self._post("/applications/search/actions/export/csv",
-                           json_body=export_request)
+                          json_body=export_request)
 
     # ------------------------------------------------------------------ #
     # POST /applications/actions/export/csv  -- exportApplicationsListToCsv
