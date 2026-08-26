@@ -310,3 +310,27 @@ class AppVizV3(AppVizAuth):
         if filter is not None:
             params["filter"] = filter
         return self._post("/applications/actions/export/csv", params=params or None)
+
+    def get_task(self, task_id=None):
+        """
+        Get a task by ID
+        :param task_id: Task ID.
+        """
+        if task_id is None:
+            raise ValueError("task_id is required")
+
+        return self._get(f"/tasks/{task_id}")
+
+    def list_group_members(self, group_id=None):
+        """
+        List the members of a group network object. This works also for other type of objects
+        :param group_id: Object ID.
+        """
+        if group_id is None:
+            raise ValueError("group_id is required")
+
+        result = self._get(f"/network-objects/{group_id}/items", params={'size': 100})
+        if result['elements']:
+            return result['elements']
+
+        return None
