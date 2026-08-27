@@ -181,7 +181,7 @@ class AppVizV3(AppVizAuth):
 
     def get_application(self, app_id):
         """Get data for a specific application, based on its head revision."""
-        result =  self._get(f"/applications/{app_id}")
+        result = self._get(f"/applications/{app_id}")
 
         return MyDict(result)
 
@@ -336,7 +336,7 @@ class AppVizV3(AppVizAuth):
 
         result = self._post("/applications/search", json_body=search_filter, params=params)
 
-        return MyDict(resource)
+        return MyDict(result)
 
     # ------------------------------------------------------------------ #
     # POST /applications/search/actions/export/csv
