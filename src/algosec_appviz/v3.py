@@ -38,10 +38,12 @@ a RestTask (202) that you poll via the Tasks API
 """
 
 import logging
+import os
 
 import requests
 
 from .auth import AppVizAuth
+from .environment import VERBOSE, DEBUG
 
 logger = logging.getLogger(__name__)
 
@@ -96,19 +98,30 @@ class AppVizV3(AppVizAuth):
         url = f"{self.base_url}{path}"
         kwargs.setdefault("timeout", self.timeout)
         response = self.session.request(method, url, **kwargs)
+        if DEBUG:
+            print(f"_request response: {response}")
         response.raise_for_status()
         return response
 
     def _get(self, path, params=None):
         resp = self._request("GET", path, params=params)
+        if DEBUG:
+            print(f"_request response: {resp}")
+
         return resp.json() if resp.content else None
 
     def _post(self, path, json_body=None, params=None):
         resp = self._request("POST", path, json=json_body, params=params)
+        if DEBUG:
+            print(f"_request response: {resp}")
+
         return resp.json() if resp.content else None
 
     def _delete(self, path):
         resp = self._request("DELETE", path)
+        if DEBUG:
+            print(f"_request response: {resp}")
+
         return resp.json() if resp.content else None
 
     # ------------------------------------------------------------------ #
@@ -149,10 +162,13 @@ class AppVizV3(AppVizAuth):
         page = 0
 
         while True:
+            if VERBOSE:
+                print(f"Getting applications, page {page + 1}...")
             result = self.list_applications(page=page, size=500)
             all_apps.extend(result['elements'])
+            page += 1
 
-            if not result.next:
+            if not result['next']:
                 break
 
         return all_apps
