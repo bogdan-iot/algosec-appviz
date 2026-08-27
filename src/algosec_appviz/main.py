@@ -2,6 +2,7 @@ import json
 import requests
 
 from .auth import AppVizAuth
+from .environment import VERBOSE, DEBUG
 from datetime import datetime, timedelta
 from mydict import MyDict
 
