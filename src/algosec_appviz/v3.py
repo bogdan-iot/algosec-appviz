@@ -38,12 +38,11 @@ a RestTask (202) that you poll via the Tasks API
 """
 
 import logging
-import os
-
 import requests
 
 from .auth import AppVizAuth
 from .environment import VERBOSE, DEBUG
+from mydict import MyDict
 
 logger = logging.getLogger(__name__)
 
@@ -155,7 +154,10 @@ class AppVizV3(AppVizAuth):
             params["filter"] = filter
         if count_total_elements is not None:
             params["countTotalElements"] = count_total_elements
-        return self._get("/applications", params=params)
+
+        result = self._get("/applications", params=params)
+
+        return MyDict(result)
 
     def get_all_applications(self):
         all_apps = []
@@ -165,10 +167,10 @@ class AppVizV3(AppVizAuth):
             if VERBOSE:
                 print(f"Getting applications, page {page + 1}...")
             result = self.list_applications(page=page, size=500)
-            all_apps.extend(result['elements'])
+            all_apps.extend(result.elements)
             page += 1
 
-            if not result['next']:
+            if not result.next:
                 break
 
         return all_apps
@@ -179,7 +181,9 @@ class AppVizV3(AppVizAuth):
 
     def get_application(self, app_id):
         """Get data for a specific application, based on its head revision."""
-        return self._get(f"/applications/{app_id}")
+        result = self._get(f"/applications/{app_id}")
+
+        return MyDict(result)
 
     # ------------------------------------------------------------------ #
     # DELETE /applications/{appId}  -- applicationDelete
@@ -190,7 +194,9 @@ class AppVizV3(AppVizAuth):
         Delete a decommissioned application.
         :return: dict -- RestTask describing the delete operation.
         """
-        return self._delete(f"/applications/{app_id}")
+        result = self._delete(f"/applications/{app_id}")
+
+        return MyDict(result)
 
     # ------------------------------------------------------------------ #
     # GET /applications/{appId}/revisions  -- getVisibleRevisions
@@ -198,7 +204,9 @@ class AppVizV3(AppVizAuth):
 
     def get_visible_revisions(self, app_id):
         """Get the (visible) revisions of an application."""
-        return self._get(f"/applications/{app_id}/revisions")
+        result = self._get(f"/applications/{app_id}/revisions")
+
+        return MyDict(result)
 
     # ------------------------------------------------------------------ #
     # POST /applications/{id}/actions/resolve  -- resolveApplication
@@ -215,7 +223,10 @@ class AppVizV3(AppVizAuth):
         payload = {}
         if subject is not None:
             payload["subject"] = subject
-        return self._post(f"/applications/{app_id}/actions/resolve", json_body=payload)
+
+        result = self._post(f"/applications/{app_id}/actions/resolve", json_body=payload)
+
+        return MyDict(result)
 
     # ------------------------------------------------------------------ #
     # POST /applications/{id}/actions/recertify  -- recertifyApplication
@@ -229,7 +240,10 @@ class AppVizV3(AppVizAuth):
         :return: dict -- RestTask on success (202).
         """
         payload = {"recertificationComment": recertification_comment}
-        return self._post(f"/applications/{app_id}/actions/recertify", json_body=payload)
+
+        result = self._post(f"/applications/{app_id}/actions/recertify", json_body=payload)
+
+        return MyDict(result)
 
     # ------------------------------------------------------------------ #
     # POST /applications/{id}/actions/decommission  -- decommissionApplication
@@ -245,7 +259,10 @@ class AppVizV3(AppVizAuth):
         payload = {}
         if subject is not None:
             payload["subject"] = subject
-        return self._post(f"/applications/{app_id}/actions/decommission", json_body=payload)
+
+        result = self._post(f"/applications/{app_id}/actions/decommission", json_body=payload)
+
+        return MyDict(result)
 
     # ------------------------------------------------------------------ #
     # POST /applications/{id}/actions/activate  -- activateApplication
@@ -267,7 +284,10 @@ class AppVizV3(AppVizAuth):
             payload["subject"] = subject
         if selected_flow_ids is not None:
             payload["selectedFlowsIds"] = list(selected_flow_ids)
-        return self._post(f"/applications/{app_id}/actions/activate", json_body=payload)
+
+        result = self._post(f"/applications/{app_id}/actions/activate", json_body=payload)
+
+        return MyDict(result)
 
     # ------------------------------------------------------------------ #
     # POST /applications/{id}/action  -- applicationActions
@@ -284,7 +304,10 @@ class AppVizV3(AppVizAuth):
         :return: dict -- RestTask on success (202).
         """
         body = {"type": action_type, "payload": payload or {}}
-        return self._post(f"/applications/{app_id}/action", json_body=body)
+
+        result = self._post(f"/applications/{app_id}/action", json_body=body)
+
+        return MyDict(result)
 
     # ------------------------------------------------------------------ #
     # POST /applications/search  -- searchApplications
@@ -310,7 +333,10 @@ class AppVizV3(AppVizAuth):
         params = {"page": page, "size": size}
         if sort:
             params["sort"] = list(sort)
-        return self._post("/applications/search", json_body=search_filter, params=params)
+
+        result = self._post("/applications/search", json_body=search_filter, params=params)
+
+        return MyDict(result)
 
     # ------------------------------------------------------------------ #
     # POST /applications/search/actions/export/csv
@@ -325,8 +351,10 @@ class AppVizV3(AppVizAuth):
         options defined by the schema).
         :return: dict -- RestTask -- poll the Tasks API for the resulting file.
         """
-        return self._post("/applications/search/actions/export/csv",
-                          json_body=export_request)
+        result = self._post("/applications/search/actions/export/csv",
+                            json_body=export_request)
+
+        return MyDict(result)
 
     # ------------------------------------------------------------------ #
     # POST /applications/actions/export/csv  -- exportApplicationsListToCsv
@@ -344,7 +372,10 @@ class AppVizV3(AppVizAuth):
             params["fields"] = list(fields)
         if filter is not None:
             params["filter"] = filter
-        return self._post("/applications/actions/export/csv", params=params or None)
+
+        result = self._post("/applications/actions/export/csv", params=params or None)
+
+        return MyDict(result)
 
     def get_task(self, task_id=None):
         """
@@ -354,7 +385,9 @@ class AppVizV3(AppVizAuth):
         if task_id is None:
             raise ValueError("task_id is required")
 
-        return self._get(f"/tasks/{task_id}")
+        result = self._get(f"/tasks/{task_id}")
+
+        return MyDict(result)
 
     def list_group_members(self, group_id=None):
         """
@@ -366,6 +399,6 @@ class AppVizV3(AppVizAuth):
 
         result = self._get(f"/network-objects/{group_id}/items", params={'size': 100})
         if result['elements']:
-            return result['elements']
+            return [MyDict(x) for x in result['elements']]
 
         return None
