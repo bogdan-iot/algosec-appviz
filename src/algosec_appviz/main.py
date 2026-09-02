@@ -63,7 +63,7 @@ class AppViz(AppVizAuth):
 
         return result
 
-    def get_application_id_by_name(self, name):
+    def get_application_by_name(self, name):
         """
         Gets the latest revision of an application by name
         :param name: The name of the application
