@@ -468,3 +468,23 @@ class AppViz(AppVizAuth):
             return True
 
         return False
+
+    def get_permissions_by_username(self, username=None):
+        if not username:
+            raise ValueError('username is mandatory')
+
+        response = self._make_api_call('GET',
+                                       '/BusinessFlow/rest/v1/settings/permissions/user',
+                                       params={'name': username})
+
+        return MyDict(response)
+
+    def get_role_permissions_by_name(self, name=None):
+        if not name:
+            raise ValueError('name is mandatory')
+
+        response = self._make_api_call('GET',
+                                       '/BusinessFlow/rest/v1/settings/permissions/role',
+                                       params={'name': name})
+
+        return MyDict(response)
