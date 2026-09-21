@@ -185,8 +185,7 @@ class AppViz(AppVizAuth):
         obj = [x for x in result if x['objectType'].lower() != 'group']
 
         if len(obj) > 1:
-            print("Multiple objects found")
-            return None
+            return obj
         elif len(obj) < 1:
             return None
 
