@@ -487,3 +487,14 @@ class AppViz(AppVizAuth):
                                        params={'name': name})
 
         return MyDict(response)
+
+    def update_role_permissions(self, name=None, **kwargs):
+        if not name:
+            raise ValueError('name is mandatory')
+
+        response = self._make_api_call('POST',
+                                       '/BusinessFlow/rest/v1/settings/permissions/role',
+                                       params={'name': name},
+                                       body={**kwargs})
+
+        return MyDict(response)
