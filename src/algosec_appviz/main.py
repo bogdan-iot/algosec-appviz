@@ -284,8 +284,11 @@ class AppViz(AppVizAuth):
                                      f'/BusinessFlow/rest/v1/network_objects/{obj_id}',
                                      body={**kwargs})
 
-        if isinstance(result, dict) and 'networkObject' in result.keys():
-            return {'success': result['networkObject']}
+        if isinstance(result, dict):
+            if 'networkObject' in result.keys():
+                return {'success': result['networkObject']}
+            elif 'message' in result.keys():
+                return result
 
         try:
             return {'error': result[1]}
