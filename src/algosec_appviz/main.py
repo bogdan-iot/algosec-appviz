@@ -347,7 +347,7 @@ class AppViz(AppVizAuth):
             services = self.list_network_services(page_number=page)
             page = page + 1
             appviz_services.extend(services)
-            if len(services) < 1000:
+            if len(services) < 500:
                 break
 
         return appviz_services
