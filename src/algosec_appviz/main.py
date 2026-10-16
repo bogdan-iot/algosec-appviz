@@ -501,3 +501,16 @@ class AppViz(AppVizAuth):
                                        body={**kwargs})
 
         return MyDict(response)
+
+    def create_service(self, name=None, ports=None):
+        if not name:
+            raise ValueError('name is mandatory')
+
+        if not isinstance(ports, list):
+            raise ValueError("ports needs to be a list of {'protocol': xxx, 'port': xxx}")
+
+        response = self._make_api_call('POST',
+                                       '/BusinessFlow/rest/v1/network_services/new',
+                                       body={'name': name, 'content': ports})
+
+        return MyDict(response)
